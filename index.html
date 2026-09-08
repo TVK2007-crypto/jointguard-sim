@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JointGuard – Conveyor Digital Twin</title>
+<title>JointGuard - Conveyor Digital Twin</title>
 
 <style>
 * {
@@ -14,12 +14,11 @@
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #05070d;
+    background: #05070b;
     color: white;
+    font-family: Arial, sans-serif;
 }
 
-/* Canvas */
 #canvas {
     position: fixed;
     inset: 0;
@@ -27,69 +26,73 @@ body {
     height: 100%;
 }
 
-/* Top information */
+/* TOP INFO */
 #info {
     position: absolute;
     top: 15px;
     left: 15px;
     padding: 12px 16px;
-    background: rgba(0,0,0,0.78);
-    border: 1px solid #333;
+    background: rgba(0,0,0,0.82);
+    border: 1px solid #444;
     border-radius: 8px;
     font-size: 14px;
     line-height: 1.5;
-    pointer-events: none;
+    z-index: 5;
 }
 
-/* Dashboard */
+/* DASHBOARD */
 #dashboard {
     position: absolute;
     top: 15px;
     right: 15px;
-    width: 330px;
+    width: 350px;
     max-height: calc(100vh - 30px);
     overflow-y: auto;
 
-    background: rgba(5,7,13,0.94);
-    border: 1px solid #444;
-    border-radius: 10px;
     padding: 15px;
 
-    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    background: rgba(5,8,14,0.96);
+    border: 1px solid #444;
+    border-radius: 10px;
+
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    z-index: 10;
 }
 
 #dashboard h2 {
-    margin: 0 0 5px;
-    font-size: 20px;
+    margin: 0;
+    font-size: 21px;
 }
 
 .subtitle {
-    color: #aaa;
+    color: #999;
     font-size: 12px;
-    margin-bottom: 12px;
+    margin: 4px 0 14px;
 }
 
-.section-title {
-    font-size: 14px;
-    color: #ddd;
-    margin: 14px 0 7px;
-}
-
-/* System status */
-.status-box {
+/* STATUS */
+.status {
     display: flex;
     justify-content: space-between;
     padding: 9px;
-    background: #11151d;
+    margin-bottom: 7px;
+    background: #12161e;
     border-radius: 6px;
-    margin-bottom: 8px;
 }
 
-.status-value {
+.statusValue {
     font-weight: bold;
 }
 
-/* Table */
+/* SECTION */
+.sectionTitle {
+    margin-top: 15px;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -97,91 +100,124 @@ table {
 }
 
 th {
-    background: #1b1f27;
+    background: #1d222b;
     padding: 7px 4px;
-    border: 1px solid #3b3f47;
+    border: 1px solid #444;
 }
 
 td {
     padding: 6px 3px;
-    border: 1px solid #30343c;
+    border: 1px solid #333;
     text-align: center;
 }
 
 .risk {
     color: #000;
     font-weight: bold;
-    border-radius: 3px;
 }
 
-/* Sensor cards */
-.sensor-grid {
+/* SENSOR GRID */
+.sensorGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 7px;
 }
 
 .sensor {
-    background: #11151d;
-    padding: 9px;
+    background: #12161e;
     border-radius: 6px;
+    padding: 9px;
 }
 
-.sensor-name {
-    color: #999;
+.sensorName {
+    color: #888;
     font-size: 10px;
 }
 
-.sensor-value {
-    font-size: 15px;
-    font-weight: bold;
+.sensorValue {
     margin-top: 3px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-/* Controls */
-.controls {
-    margin-top: 14px;
+/* MANUAL CONTROLS */
+.jointControl {
+    background: #11151c;
+    padding: 8px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-button {
-    width: 100%;
-    padding: 9px;
-    margin-bottom: 8px;
+.jointControl label {
+    font-weight: bold;
+    font-size: 12px;
+}
 
-    background: #1b1f27;
+select {
+    width: 190px;
+    padding: 6px;
+
+    background: #20252e;
     color: white;
 
     border: 1px solid #555;
+    border-radius: 4px;
+}
+
+/* BUTTONS */
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+
+    border: 1px solid #555;
     border-radius: 5px;
+
+    background: #1c222b;
+    color: white;
 
     cursor: pointer;
     font-weight: bold;
 }
 
 button:hover {
-    background: #303640;
+    background: #303742;
 }
 
+#startBtn {
+    border-color: #00aa55;
+}
+
+#stopBtn {
+    border-color: #cc3333;
+}
+
+/* BELT SPEED */
 input[type="range"] {
     width: 100%;
 }
 
-/* Legend */
+/* LEGEND */
 #legend {
     position: absolute;
     bottom: 15px;
     left: 15px;
 
-    background: rgba(0,0,0,0.78);
+    background: rgba(0,0,0,0.8);
     border: 1px solid #333;
     border-radius: 8px;
 
     padding: 10px 14px;
     font-size: 12px;
+    z-index: 5;
 }
 
-.legend-row {
-    margin: 4px 0;
+.legendRow {
+    margin: 4px;
 }
 
 .dot {
@@ -192,36 +228,38 @@ input[type="range"] {
     margin-right: 6px;
 }
 
-/* AI alert */
+/* ALERT */
 #alert {
+    display: none;
+
     position: absolute;
-    left: 50%;
     bottom: 20px;
+    left: 50%;
 
     transform: translateX(-50%);
 
-    background: rgba(100,0,0,0.92);
+    padding: 11px 22px;
+
+    background: rgba(150,0,0,0.92);
     border: 1px solid red;
 
-    padding: 10px 20px;
     border-radius: 7px;
 
     font-weight: bold;
-    display: none;
 
-    box-shadow: 0 0 20px rgba(255,0,0,0.5);
+    box-shadow: 0 0 25px rgba(255,0,0,0.5);
+
+    z-index: 20;
 }
 
-/* Mobile */
 @media(max-width:800px) {
 
     #dashboard {
-        width: 290px;
-        font-size: 11px;
+        width: 300px;
     }
 
-    #info {
-        max-width: 250px;
+    select {
+        width: 150px;
     }
 }
 </style>
@@ -231,79 +269,113 @@ input[type="range"] {
 
 <canvas id="canvas"></canvas>
 
-<!-- Information -->
+<!-- INFORMATION -->
 <div id="info">
-    <b>JointGuard – Conveyor Digital Twin</b><br>
-    AI/ML Monitoring System<br>
-    <span id="simulationTime">Time: --</span>
+    <b>JOINTGUARD</b><br>
+    Conveyor Belt Digital Twin<br>
+    <span id="timeDisplay">Simulation Time: 00:00:00</span>
 </div>
 
-<!-- Legend -->
+<!-- LEGEND -->
 <div id="legend">
 
-    <div class="legend-row">
+    <div class="legendRow">
         <span class="dot" style="background:#00ff00"></span>
         Low Risk
     </div>
 
-    <div class="legend-row">
+    <div class="legendRow">
         <span class="dot" style="background:#ffff00"></span>
         Medium Risk
     </div>
 
-    <div class="legend-row">
+    <div class="legendRow">
         <span class="dot" style="background:#ffa500"></span>
         High Risk
     </div>
 
-    <div class="legend-row">
+    <div class="legendRow">
         <span class="dot" style="background:#ff0000"></span>
         Critical Risk
     </div>
 
 </div>
 
-<!-- Alert -->
+<!-- ALERT -->
 <div id="alert">
-    ⚠ CRITICAL JOINT ALERT
+    ⚠ CRITICAL JOINT DETECTED
 </div>
 
-<!-- Dashboard -->
+
+<!-- DASHBOARD -->
 <div id="dashboard">
 
-    <h2>JointGuard</h2>
+    <h2>JointGuard Dashboard</h2>
 
     <div class="subtitle">
-        Conveyor Belt Joint Monitoring System
+        AI + IoT Conveyor Joint Monitoring
     </div>
 
-    <div class="status-box">
-        <span>System Status</span>
-        <span id="systemStatus" class="status-value">
-            MONITORING
+
+    <div class="status">
+        <span>Belt Status</span>
+        <span id="beltStatus" class="statusValue">
+            STOPPED
         </span>
     </div>
 
-    <div class="status-box">
-        <span>AI Detection</span>
-        <span id="aiStatus" class="status-value">
+    <div class="status">
+        <span>AI Monitoring</span>
+        <span id="aiStatus" class="statusValue">
             ACTIVE
         </span>
     </div>
 
-    <div class="section-title">
+
+    <!-- BELT CONTROLS -->
+    <div class="sectionTitle">
+        Conveyor Control
+    </div>
+
+    <button id="startBtn">
+        ▶ START BELT
+    </button>
+
+    <button id="stopBtn">
+        ■ STOP BELT
+    </button>
+
+
+    <div style="margin-top:10px;">
+        Belt Speed:
+        <b><span id="speedValue">5</span>x</b>
+    </div>
+
+    <input
+        type="range"
+        id="speedSlider"
+        min="1"
+        max="10"
+        value="5"
+    >
+
+
+    <!-- JOINT TABLE -->
+    <div class="sectionTitle">
         Joint Health
     </div>
 
     <table>
 
         <thead>
+
             <tr>
                 <th>Joint</th>
                 <th>Health</th>
                 <th>RUL</th>
                 <th>Risk</th>
             </tr>
+
         </thead>
 
         <tbody id="jointTable">
@@ -311,403 +383,244 @@ input[type="range"] {
 
     </table>
 
-    <div class="section-title">
+
+    <!-- SENSOR DATA -->
+    <div class="sectionTitle">
         Live Sensor Data
     </div>
 
-    <div class="sensor-grid">
+    <div class="sensorGrid">
 
         <div class="sensor">
-            <div class="sensor-name">
+            <div class="sensorName">
                 VIBRATION
             </div>
 
-            <div class="sensor-value" id="vibration">
+            <div
+                class="sensorValue"
+                id="vibration"
+            >
                 --
             </div>
         </div>
 
+
         <div class="sensor">
-            <div class="sensor-name">
-                TENSION
+            <div class="sensorName">
+                BELT TENSION
             </div>
 
-            <div class="sensor-value" id="tension">
+            <div
+                class="sensorValue"
+                id="tension"
+            >
                 --
             </div>
         </div>
 
+
         <div class="sensor">
-            <div class="sensor-name">
+            <div class="sensorName">
                 TEMPERATURE
             </div>
 
-            <div class="sensor-value" id="temperature">
+            <div
+                class="sensorValue"
+                id="temperature"
+            >
                 --
             </div>
         </div>
 
+
         <div class="sensor">
-            <div class="sensor-name">
+            <div class="sensorName">
                 AI CONFIDENCE
             </div>
 
-            <div class="sensor-value" id="confidence">
+            <div
+                class="sensorValue"
+                id="confidence"
+            >
                 --
             </div>
         </div>
 
     </div>
 
-    <div class="controls">
 
-        <button id="playPause">
-            ⏸ Pause Simulation
-        </button>
-
-        <label>
-            Simulation Speed
-        </label>
-
-        <input
-            type="range"
-            id="speed"
-            min="1"
-            max="10"
-            value="5"
-        >
-
-        <div style="text-align:center;color:#aaa;margin-top:5px;">
-            Speed: <span id="speedValue">5x</span>
-        </div>
-
+    <!-- MANUAL FAULT CONTROL -->
+    <div class="sectionTitle">
+        Manual Joint Condition
     </div>
 
+
+    <div id="jointControls"></div>
+
+
+    <button id="resetBtn">
+        ↻ RESET ALL JOINTS
+    </button>
+
 </div>
+
 
 <script>
 
 /* ============================================================
-   JOINTGUARD
-   Standalone Conveyor Digital Twin
+   JOINTGUARD STANDALONE DIGITAL TWIN
    No external libraries
    ============================================================ */
 
 
 /* ------------------------------------------------------------
-   Canvas setup
+   CANVAS
    ------------------------------------------------------------ */
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas =
+    document.getElementById("canvas");
+
+const ctx =
+    canvas.getContext("2d");
 
 let width;
 let height;
 
-function resizeCanvas() {
 
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+function resize() {
+
+    width =
+        canvas.width =
+        window.innerWidth;
+
+    height =
+        canvas.height =
+        window.innerHeight;
 
 }
 
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener(
+    "resize",
+    resize
+);
 
-resizeCanvas();
+resize();
 
 
 /* ------------------------------------------------------------
-   Joint dataset
+   JOINT CONDITIONS
+   ------------------------------------------------------------ */
+
+const conditions = {
+
+    normal: {
+        name: "Normal",
+        health: 96,
+        rul: 180,
+        risk: "Low"
+    },
+
+    moderate: {
+        name: "Moderate Wear",
+        health: 78,
+        rul: 105,
+        risk: "Medium"
+    },
+
+    vibration: {
+        name: "High Vibration",
+        health: 61,
+        rul: 60,
+        risk: "High"
+    },
+
+    tension: {
+        name: "Excess Tension",
+        health: 52,
+        rul: 42,
+        risk: "High"
+    },
+
+    temperature: {
+        name: "High Temperature",
+        health: 47,
+        rul: 32,
+        risk: "High"
+    },
+
+    splice: {
+        name: "Splice Damage",
+        health: 31,
+        rul: 17,
+        risk: "Critical"
+    },
+
+    critical: {
+        name: "Critical Failure",
+        health: 12,
+        rul: 5,
+        risk: "Critical"
+    }
+
+};
+
+
+/* ------------------------------------------------------------
+   JOINT DATA
    ------------------------------------------------------------ */
 
 const joints = [
 
     {
         id: "J1",
-        health: 96,
-        rul: 185,
-        risk: "Low"
+        condition: "normal"
     },
 
     {
         id: "J2",
-        health: 82,
-        rul: 110,
-        risk: "Medium"
+        condition: "moderate"
     },
 
     {
         id: "J3",
-        health: 67,
-        rul: 58,
-        risk: "High"
+        condition: "vibration"
     },
 
     {
         id: "J4",
-        health: 38,
-        rul: 19,
-        risk: "Critical"
+        condition: "splice"
     },
 
     {
         id: "J5",
-        health: 91,
-        rul: 145,
-        risk: "Low"
+        condition: "normal"
     }
 
 ];
 
 
 /* ------------------------------------------------------------
-   Risk colors
+   RISK COLOR
    ------------------------------------------------------------ */
 
-function getRiskColor(risk) {
+function riskColor(risk) {
 
-    if (risk === "Low")
-        return "#00ff00";
+    switch(risk) {
 
-    if (risk === "Medium")
-        return "#ffff00";
+        case "Low":
+            return "#00ff00";
 
-    if (risk === "High")
-        return "#ffa500";
+        case "Medium":
+            return "#ffff00";
 
-    if (risk === "Critical")
-        return "#ff0000";
+        case "High":
+            return "#ffa500";
 
-    return "#ffffff";
-}
+        case "Critical":
+            return "#ff0000";
 
-
-/* ------------------------------------------------------------
-   Conveyor geometry
-   ------------------------------------------------------------ */
-
-let beltOffset = 0;
-
-
-/*
-    Draw pseudo-3D conveyor
-*/
-
-function drawConveyor() {
-
-    /*
-        Position conveyor in lower-middle
-    */
-
-    const centerX = width * 0.40;
-    const centerY = height * 0.55;
-
-    const beltWidth = Math.min(width * 0.65, 850);
-    const beltHeight = Math.min(height * 0.18, 150);
-
-    const left = centerX - beltWidth / 2;
-    const top = centerY - beltHeight / 2;
-
-
-    /* Ground shadow */
-
-    ctx.save();
-
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        centerX,
-        top + beltHeight + 60,
-        beltWidth * 0.52,
-        30,
-        0,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-    ctx.restore();
-
-
-    /* Conveyor belt */
-
-    const gradient = ctx.createLinearGradient(
-        0,
-        top,
-        0,
-        top + beltHeight
-    );
-
-    gradient.addColorStop(0, "#3b3f46");
-    gradient.addColorStop(0.45, "#171a1f");
-    gradient.addColorStop(1, "#080a0d");
-
-    ctx.fillStyle = gradient;
-
-    roundRect(
-        ctx,
-        left,
-        top,
-        beltWidth,
-        beltHeight,
-        15
-    );
-
-    ctx.fill();
-
-
-    /*
-        Belt side
-    */
-
-    ctx.fillStyle = "#090b0e";
-
-    ctx.fillRect(
-        left,
-        top + beltHeight - 12,
-        beltWidth,
-        25
-    );
-
-
-    /*
-        Moving belt markings
-    */
-
-    ctx.save();
-
-    ctx.beginPath();
-
-    roundRect(
-        ctx,
-        left,
-        top,
-        beltWidth,
-        beltHeight,
-        15
-    );
-
-    ctx.clip();
-
-    ctx.strokeStyle = "#555a62";
-    ctx.lineWidth = 2;
-
-    beltOffset += 0.7;
-
-    for (
-        let x = left - beltWidth + (beltOffset % 70);
-        x < left + beltWidth;
-        x += 70
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(x, top);
-        ctx.lineTo(x + 35, top + beltHeight);
-
-        ctx.stroke();
-
-    }
-
-    ctx.restore();
-
-
-    /*
-        Pulleys
-    */
-
-    drawPulley(
-        left + 20,
-        top + beltHeight / 2,
-        beltHeight * 0.48
-    );
-
-    drawPulley(
-        left + beltWidth - 20,
-        top + beltHeight / 2,
-        beltHeight * 0.48
-    );
-
-
-    /*
-        Joints
-    */
-
-    const spacing = beltWidth / 5;
-
-    joints.forEach((joint, index) => {
-
-        const x =
-            left +
-            spacing * index +
-            spacing / 2;
-
-        const y =
-            top +
-            beltHeight / 2;
-
-        drawJoint(
-            x,
-            y,
-            joint
-        );
-
-    });
-
-
-    /*
-        Overhead camera rail
-    */
-
-    const cameraY = top - 100;
-
-    ctx.strokeStyle = "#888";
-    ctx.lineWidth = 7;
-
-    ctx.beginPath();
-
-    ctx.moveTo(left, cameraY);
-    ctx.lineTo(left + beltWidth, cameraY);
-
-    ctx.stroke();
-
-
-    /*
-        Camera supports
-    */
-
-    ctx.strokeStyle = "#555";
-    ctx.lineWidth = 4;
-
-    ctx.beginPath();
-
-    ctx.moveTo(left + 30, cameraY);
-    ctx.lineTo(left + 30, top - 15);
-
-    ctx.moveTo(left + beltWidth - 30, cameraY);
-    ctx.lineTo(left + beltWidth - 30, top - 15);
-
-    ctx.stroke();
-
-
-    /*
-        Cameras
-    */
-
-    for (let i = 0; i < 3; i++) {
-
-        const cameraX =
-            left +
-            80 +
-            i * ((beltWidth - 160) / 2);
-
-        drawCamera(
-            cameraX,
-            cameraY
-        );
+        default:
+            return "#ffffff";
 
     }
 
@@ -715,637 +628,264 @@ function drawConveyor() {
 
 
 /* ------------------------------------------------------------
-   Rounded rectangle helper
+   GET JOINT INFORMATION
    ------------------------------------------------------------ */
 
-function roundRect(
-    context,
-    x,
-    y,
-    w,
-    h,
-    r
-) {
+function getJointData(joint) {
 
-    context.beginPath();
-
-    context.moveTo(x + r, y);
-
-    context.lineTo(x + w - r, y);
-
-    context.quadraticCurveTo(
-        x + w,
-        y,
-        x + w,
-        y + r
-    );
-
-    context.lineTo(
-        x + w,
-        y + h - r
-    );
-
-    context.quadraticCurveTo(
-        x + w,
-        y + h,
-        x + w - r,
-        y + h
-    );
-
-    context.lineTo(
-        x + r,
-        y + h
-    );
-
-    context.quadraticCurveTo(
-        x,
-        y + h,
-        x,
-        y + h - r
-    );
-
-    context.lineTo(
-        x,
-        y + r
-    );
-
-    context.quadraticCurveTo(
-        x,
-        y,
-        x + r,
-        y
-    );
+    return conditions[
+        joint.condition
+    ];
 
 }
 
 
 /* ------------------------------------------------------------
-   Pulley
+   MANUAL CONTROLS
    ------------------------------------------------------------ */
 
-function drawPulley(
-    x,
-    y,
-    radius
-) {
-
-    ctx.save();
-
-    ctx.fillStyle = "#444";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        radius,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    ctx.strokeStyle = "#888";
-    ctx.lineWidth = 5;
-
-    ctx.stroke();
-
-
-    ctx.fillStyle = "#222";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        radius * 0.55,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle = "#aaa";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y,
-        radius * 0.15,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-    ctx.restore();
-
-}
-
-
-/* ------------------------------------------------------------
-   Joint
-   ------------------------------------------------------------ */
-
-function drawJoint(
-    x,
-    y,
-    joint
-) {
-
-    const color =
-        getRiskColor(joint.risk);
-
-
-    /*
-        Glow for dangerous joints
-    */
-
-    if (
-        joint.risk === "High" ||
-        joint.risk === "Critical"
-    ) {
-
-        ctx.save();
-
-        ctx.shadowBlur =
-            joint.risk === "Critical"
-                ? 25
-                : 15;
-
-        ctx.shadowColor = color;
-
-        ctx.fillStyle = color;
-
-        ctx.fillRect(
-            x - 18,
-            y - 12,
-            36,
-            24
-        );
-
-        ctx.restore();
-
-    }
-
-
-    /*
-        Joint body
-    */
-
-    ctx.fillStyle = color;
-
-    ctx.fillRect(
-        x - 18,
-        y - 12,
-        36,
-        24
-    );
-
-
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 2;
-
-    ctx.strokeRect(
-        x - 18,
-        y - 12,
-        36,
-        24
-    );
-
-
-    /*
-        Joint label
-    */
-
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 14px Arial";
-    ctx.textAlign = "center";
-
-    ctx.fillText(
-        joint.id,
-        x,
-        y - 28
-    );
-
-
-    /*
-        Sensor symbol
-    */
-
-    ctx.fillStyle = "#00d9ff";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y + 22,
-        4,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-}
-
-
-/* ------------------------------------------------------------
-   Camera
-   ------------------------------------------------------------ */
-
-function drawCamera(
-    x,
-    y
-) {
-
-    ctx.save();
-
-    /*
-        Camera body
-    */
-
-    ctx.fillStyle = "#aaa";
-
-    ctx.fillRect(
-        x - 17,
-        y - 13,
-        34,
-        20
-    );
-
-
-    /*
-        Lens
-    */
-
-    ctx.fillStyle = "#111";
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x,
-        y + 7,
-        7,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    /*
-        AI scanning beam
-    */
-
-    ctx.globalAlpha = 0.08;
-
-    ctx.fillStyle = "#00d9ff";
-
-    ctx.beginPath();
-
-    ctx.moveTo(x - 10, y + 10);
-
-    ctx.lineTo(x - 80, y + 160);
-
-    ctx.lineTo(x + 80, y + 160);
-
-    ctx.lineTo(x + 10, y + 10);
-
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.restore();
-
-}
-
-
-/* ------------------------------------------------------------
-   Dashboard
-   ------------------------------------------------------------ */
-
-function updateDashboard() {
-
-    const table =
-        document.getElementById("jointTable");
-
-    table.innerHTML = "";
-
-
-    joints.forEach(joint => {
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>
-                <b>${joint.id}</b>
-            </td>
-
-            <td>
-                ${joint.health.toFixed(1)}%
-            </td>
-
-            <td>
-                ${joint.rul.toFixed(1)} d
-            </td>
-
-            <td
-                class="risk"
-                style="
-                    background:${getRiskColor(joint.risk)}
-                "
-            >
-                ${joint.risk}
-            </td>
-
-        `;
-
-        table.appendChild(row);
-
-    });
-
-
-    /*
-        Find worst joint
-    */
-
-    const riskOrder = {
-
-        Low: 1,
-        Medium: 2,
-        High: 3,
-        Critical: 4
-
-    };
-
-
-    let worst =
-        joints.reduce(
-            (a,b) =>
-                riskOrder[a.risk] >
-                riskOrder[b.risk]
-                    ? a
-                    : b
-        );
-
-
-    /*
-        Critical alert
-    */
-
-    const alert =
-        document.getElementById("alert");
-
-
-    if (worst.risk === "Critical") {
-
-        alert.style.display = "block";
-
-        document.getElementById(
-            "systemStatus"
-        ).textContent = "ALERT";
-
-        document.getElementById(
-            "systemStatus"
-        ).style.color = "#ff3333";
-
-    } else {
-
-        alert.style.display = "none";
-
-        document.getElementById(
-            "systemStatus"
-        ).textContent = "MONITORING";
-
-        document.getElementById(
-            "systemStatus"
-        ).style.color = "#00ff88";
-
-    }
-
-}
-
-
-/* ------------------------------------------------------------
-   Simulated sensor values
-   ------------------------------------------------------------ */
-
-function updateSensors() {
-
-    /*
-        Random realistic-looking sensor data
-    */
-
-    const vibration =
-        2.5 +
-        Math.random() * 2.5;
-
-    const tension =
-        68 +
-        Math.random() * 14;
-
-    const temperature =
-        35 +
-        Math.random() * 8;
-
-
-    /*
-        Higher vibration around damaged joints
-    */
-
-    const damagedJoint =
-        joints.find(
-            j =>
-                j.risk === "Critical" ||
-                j.risk === "High"
-        );
-
-
-    let finalVibration =
-        vibration;
-
-
-    if (damagedJoint) {
-
-        finalVibration +=
-            damagedJoint.risk === "Critical"
-                ? 3
-                : 1.5;
-
-    }
-
-
+const jointControls =
     document.getElementById(
-        "vibration"
-    ).textContent =
-        finalVibration.toFixed(2)
-        + " mm/s";
+        "jointControls"
+    );
 
 
-    document.getElementById(
-        "tension"
-    ).textContent =
-        tension.toFixed(1)
-        + " kN";
+joints.forEach(
+    (joint, index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "jointControl";
 
 
-    document.getElementById(
-        "temperature"
-    ).textContent =
-        temperature.toFixed(1)
-        + " °C";
+        const label =
+            document.createElement("label");
+
+        label.textContent =
+            joint.id;
 
 
-    /*
-        AI confidence
-    */
+        const select =
+            document.createElement("select");
 
-    const confidence =
-        91 + Math.random() * 7;
+        Object.keys(
+            conditions
+        ).forEach(
+            key => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value = key;
+
+                option.textContent =
+                    conditions[key].name;
+
+                if (
+                    key ===
+                    joint.condition
+                ) {
+
+                    option.selected =
+                        true;
+
+                }
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
 
 
-    document.getElementById(
-        "confidence"
-    ).textContent =
-        confidence.toFixed(1)
-        + "%";
+        select.addEventListener(
+            "change",
+            function() {
 
-}
+                joint.condition =
+                    this.value;
+
+                updateDashboard();
+
+            }
+        );
+
+
+        div.appendChild(label);
+
+        div.appendChild(select);
+
+        jointControls.appendChild(div);
+
+    }
+);
 
 
 /* ------------------------------------------------------------
-   Simulated AI prediction
+   RESET JOINTS
    ------------------------------------------------------------ */
 
-function simulateAI() {
+document
+.getElementById("resetBtn")
+.addEventListener(
+    "click",
+    function() {
 
-    joints.forEach(joint => {
+        joints.forEach(
+            joint => {
 
-        /*
-            Slowly degrade health
-        */
+                joint.condition =
+                    "normal";
 
-        if (
-            joint.risk === "Critical"
-        ) {
-
-            joint.health -=
-                0.003;
-
-            joint.rul -=
-                0.01;
-
-        }
-
-        else if (
-            joint.risk === "High"
-        ) {
-
-            joint.health -=
-                0.001;
-
-            joint.rul -=
-                0.005;
-
-        }
+            }
+        );
 
 
-        /*
-            Prevent negative values
-        */
-
-        joint.health =
-            Math.max(
-                0,
-                joint.health
+        const selects =
+            document.querySelectorAll(
+                "#jointControls select"
             );
 
-        joint.rul =
-            Math.max(
-                0,
-                joint.rul
-            );
 
-    });
+        selects.forEach(
+            (select) => {
 
-}
+                select.value =
+                    "normal";
+
+            }
+        );
+
+
+        updateDashboard();
+
+    }
+);
 
 
 /* ------------------------------------------------------------
-   Animation
+   BELT CONTROL
    ------------------------------------------------------------ */
 
-let running = true;
+let beltRunning = false;
 
-let speed = 5;
+let beltSpeed = 5;
 
-let lastTime = 0;
-
-let simulationSeconds = 0;
+let oreOffset = 0;
 
 
-function animate(timestamp) {
+const startBtn =
+    document.getElementById(
+        "startBtn"
+    );
 
-    requestAnimationFrame(
-        animate
+const stopBtn =
+    document.getElementById(
+        "stopBtn"
     );
 
 
-    /*
-        Delta time
-    */
+startBtn.addEventListener(
+    "click",
+    function() {
 
-    const delta =
-        timestamp - lastTime;
+        beltRunning = true;
 
-    lastTime = timestamp;
+        document.getElementById(
+            "beltStatus"
+        ).textContent =
+            "RUNNING";
+
+        document.getElementById(
+            "beltStatus"
+        ).style.color =
+            "#00ff88";
+
+    }
+);
 
 
-    /*
-        Clear screen
-    */
+stopBtn.addEventListener(
+    "click",
+    function() {
 
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
+        beltRunning = false;
+
+        document.getElementById(
+            "beltStatus"
+        ).textContent =
+            "STOPPED";
+
+        document.getElementById(
+            "beltStatus"
+        ).style.color =
+            "#ff4444";
+
+    }
+);
+
+
+/* ------------------------------------------------------------
+   SPEED
+   ------------------------------------------------------------ */
+
+const speedSlider =
+    document.getElementById(
+        "speedSlider"
     );
 
 
-    /*
-        Background gradient
-    */
+speedSlider.addEventListener(
+    "input",
+    function() {
 
-    const bg =
+        beltSpeed =
+            Number(this.value);
+
+        document.getElementById(
+            "speedValue"
+        ).textContent =
+            beltSpeed;
+
+    }
+);
+
+
+/* ------------------------------------------------------------
+   DRAW BACKGROUND
+   ------------------------------------------------------------ */
+
+function drawBackground() {
+
+    const gradient =
         ctx.createRadialGradient(
-            width * 0.35,
-            height * 0.45,
+            width * 0.3,
+            height * 0.4,
             50,
-            width * 0.35,
-            height * 0.45,
+            width * 0.3,
+            height * 0.4,
             width
         );
 
-    bg.addColorStop(
+
+    gradient.addColorStop(
         0,
-        "#141b27"
+        "#17202d"
     );
 
-    bg.addColorStop(
+    gradient.addColorStop(
         1,
         "#030409"
     );
 
 
-    ctx.fillStyle = bg;
+    ctx.fillStyle =
+        gradient;
 
     ctx.fillRect(
         0,
@@ -1355,92 +895,30 @@ function animate(timestamp) {
     );
 
 
-    /*
-        Floor grid
-    */
-
-    drawGrid();
-
-
-    /*
-        Simulation
-    */
-
-    if (running) {
-
-        simulationSeconds +=
-            delta * 0.001 * speed;
-
-        simulateAI();
-
-    }
-
-
-    /*
-        Conveyor
-    */
-
-    drawConveyor();
-
-
-    /*
-        Sensors
-    */
-
-    if (running) {
-
-        updateSensors();
-
-        updateDashboard();
-
-    }
-
-
-    /*
-        Simulation time
-    */
-
-    document.getElementById(
-        "simulationTime"
-    ).textContent =
-        "Simulation Time: "
-        + formatTime(
-            simulationSeconds
-        );
-
-}
-
-
-/* ------------------------------------------------------------
-   Floor grid
-   ------------------------------------------------------------ */
-
-function drawGrid() {
-
-    ctx.save();
+    /* Ground */
 
     ctx.strokeStyle =
-        "rgba(100,120,140,0.12)";
+        "rgba(100,130,150,0.12)";
 
     ctx.lineWidth = 1;
-
-
-    const spacing = 50;
 
 
     for (
         let x = 0;
         x < width;
-        x += spacing
+        x += 50
     ) {
 
         ctx.beginPath();
 
-        ctx.moveTo(x, height * 0.65);
+        ctx.moveTo(
+            x,
+            height * 0.66
+        );
 
         ctx.lineTo(
             width / 2 +
-            (x - width / 2) * 1.8,
+            (x - width / 2) * 1.6,
             height
         );
 
@@ -1450,9 +928,9 @@ function drawGrid() {
 
 
     for (
-        let y = height * 0.65;
+        let y = height * 0.66;
         y < height;
-        y += spacing
+        y += 45
     ) {
 
         ctx.beginPath();
@@ -1471,111 +949,1277 @@ function drawGrid() {
 
     }
 
+}
+
+
+/* ------------------------------------------------------------
+   DRAW PULLEY
+   ------------------------------------------------------------ */
+
+function drawPulley(
+    x,
+    y,
+    r
+) {
+
+    ctx.fillStyle =
+        "#555b64";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        r,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    ctx.strokeStyle =
+        "#999";
+
+    ctx.lineWidth = 4;
+
+    ctx.stroke();
+
+
+    ctx.fillStyle =
+        "#191d23";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        r * 0.55,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle =
+        "#aaa";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        r * 0.15,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+}
+
+
+/* ------------------------------------------------------------
+   DRAW ORE
+   ------------------------------------------------------------ */
+
+function drawOre(
+    x,
+    y,
+    scale
+) {
+
+    ctx.save();
+
+    ctx.translate(
+        x,
+        y
+    );
+
+    ctx.scale(
+        scale,
+        scale
+    );
+
+
+    /*
+       Ore rock
+    */
+
+    ctx.fillStyle =
+        "#817568";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-25,-15);
+    ctx.lineTo(-8,-28);
+    ctx.lineTo(20,-22);
+    ctx.lineTo(30,-2);
+    ctx.lineTo(18,22);
+    ctx.lineTo(-10,27);
+    ctx.lineTo(-28,10);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    ctx.strokeStyle =
+        "#423a34";
+
+    ctx.lineWidth = 3;
+
+    ctx.stroke();
+
+
+    /*
+       Highlights
+    */
+
+    ctx.fillStyle =
+        "#a99a88";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-12,-17);
+    ctx.lineTo(5,-21);
+    ctx.lineTo(15,-10);
+    ctx.lineTo(-5,-8);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
     ctx.restore();
 
 }
 
 
 /* ------------------------------------------------------------
-   Time formatting
+   DRAW ORE LOAD
    ------------------------------------------------------------ */
 
-function formatTime(seconds) {
+function drawOreLoad(
+    left,
+    top,
+    beltWidth,
+    beltHeight
+) {
 
-    const hours =
-        Math.floor(
-            seconds / 3600
-        );
+    /*
+       Several ore pieces
+    */
 
-    const minutes =
-        Math.floor(
-            (seconds % 3600) / 60
-        );
-
-    const secs =
-        Math.floor(
-            seconds % 60
-        );
+    const orePositions = [
+        0,
+        170,
+        340,
+        510,
+        680
+    ];
 
 
-    return (
+    orePositions.forEach(
+        (offset, index) => {
 
-        String(hours).padStart(2,"0")
-        + ":"
-        +
-        String(minutes).padStart(2,"0")
-        + ":"
-        +
-        String(secs).padStart(2,"0")
+            let x =
+                left +
+                (
+                    (offset + oreOffset)
+                    %
+                    (beltWidth + 100)
+                ) -
+                50;
 
+
+            let y =
+                top +
+                beltHeight * 0.35;
+
+
+            /*
+               Keep ore on belt
+            */
+
+            if (
+                x > left - 50 &&
+                x < left + beltWidth + 50
+            ) {
+
+                drawOre(
+                    x,
+                    y,
+                    0.65 +
+                    (index % 2) * 0.15
+                );
+
+            }
+
+        }
     );
 
 }
 
 
 /* ------------------------------------------------------------
-   Play / Pause
+   DRAW JOINT
    ------------------------------------------------------------ */
 
-document
-.getElementById("playPause")
-.addEventListener(
-    "click",
-    function() {
+function drawJoint(
+    x,
+    y,
+    joint
+) {
 
-        running = !running;
+    const data =
+        getJointData(joint);
 
 
-        this.textContent =
-            running
-                ? "⏸ Pause Simulation"
-                : "▶ Play Simulation";
+    const color =
+        riskColor(data.risk);
 
-        document.getElementById(
-            "aiStatus"
-        ).textContent =
-            running
-                ? "ACTIVE"
-                : "PAUSED";
+
+    /*
+       Glow
+    */
+
+    if (
+        data.risk === "High" ||
+        data.risk === "Critical"
+    ) {
+
+        ctx.save();
+
+        ctx.shadowBlur =
+            data.risk === "Critical"
+                ? 25
+                : 15;
+
+        ctx.shadowColor =
+            color;
+
+        ctx.fillStyle =
+            color;
+
+        ctx.fillRect(
+            x - 19,
+            y - 13,
+            38,
+            26
+        );
+
+        ctx.restore();
 
     }
-);
+
+
+    /*
+       Joint plate
+    */
+
+    ctx.fillStyle =
+        color;
+
+    ctx.fillRect(
+        x - 19,
+        y - 13,
+        38,
+        26
+    );
+
+
+    ctx.strokeStyle =
+        "#111";
+
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        x - 19,
+        y - 13,
+        38,
+        26
+    );
+
+
+    /*
+       Label
+    */
+
+    ctx.fillStyle =
+        "#fff";
+
+    ctx.font =
+        "bold 14px Arial";
+
+    ctx.textAlign =
+        "center";
+
+    ctx.fillText(
+        joint.id,
+        x,
+        y - 27
+    );
+
+
+    /*
+       Sensor
+    */
+
+    drawSensor(
+        x,
+        y + 35,
+        data.risk
+    );
+
+}
 
 
 /* ------------------------------------------------------------
-   Speed control
+   DRAW SENSOR
    ------------------------------------------------------------ */
 
-document
-.getElementById("speed")
-.addEventListener(
-    "input",
-    function() {
+function drawSensor(
+    x,
+    y,
+    risk
+) {
 
-        speed =
-            Number(this.value);
+    /*
+       Sensor mounting line
+    */
 
-        document.getElementById(
-            "speedValue"
-        ).textContent =
-            speed + "x";
+    ctx.strokeStyle =
+        "#00d9ff";
 
-    }
-);
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x,
+        y - 10
+    );
+
+    ctx.lineTo(
+        x,
+        y + 10
+    );
+
+    ctx.stroke();
+
+
+    /*
+       Sensor body
+    */
+
+    ctx.fillStyle =
+        "#00d9ff";
+
+    ctx.fillRect(
+        x - 7,
+        y,
+        14,
+        10
+    );
+
+
+    /*
+       Signal waves
+    */
+
+    ctx.strokeStyle =
+        "#00d9ff";
+
+    ctx.lineWidth = 1;
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        18,
+        -Math.PI / 3,
+        Math.PI / 3
+    );
+
+    ctx.stroke();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        25,
+        -Math.PI / 3,
+        Math.PI / 3
+    );
+
+    ctx.stroke();
+
+}
 
 
 /* ------------------------------------------------------------
-   Initial dashboard
+   DRAW CAMERA
+   ------------------------------------------------------------ */
+
+function drawCamera(
+    x,
+    y
+) {
+
+    ctx.fillStyle =
+        "#999";
+
+    ctx.fillRect(
+        x - 17,
+        y - 12,
+        34,
+        20
+    );
+
+
+    ctx.fillStyle =
+        "#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y + 8,
+        7,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+       Camera scan beam
+    */
+
+    ctx.save();
+
+    ctx.globalAlpha =
+        0.07;
+
+    ctx.fillStyle =
+        "#00d9ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - 8,
+        y + 12
+    );
+
+    ctx.lineTo(
+        x - 75,
+        y + 170
+    );
+
+    ctx.lineTo(
+        x + 75,
+        y + 170
+    );
+
+    ctx.lineTo(
+        x + 8,
+        y + 12
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* ------------------------------------------------------------
+   DRAW CONVEYOR
+   ------------------------------------------------------------ */
+
+function drawConveyor() {
+
+    /*
+       Main conveyor location
+    */
+
+    const centerX =
+        width * 0.38;
+
+    const centerY =
+        height * 0.56;
+
+
+    const beltWidth =
+        Math.min(
+            width * 0.64,
+            850
+        );
+
+
+    const beltHeight =
+        Math.min(
+            height * 0.18,
+            145
+        );
+
+
+    const left =
+        centerX -
+        beltWidth / 2;
+
+
+    const top =
+        centerY -
+        beltHeight / 2;
+
+
+    /*
+       Shadow
+    */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,0.65)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        centerX,
+        top + beltHeight + 65,
+        beltWidth * 0.55,
+        30,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+       Belt
+    */
+
+    const beltGradient =
+        ctx.createLinearGradient(
+            0,
+            top,
+            0,
+            top + beltHeight
+        );
+
+
+    beltGradient.addColorStop(
+        0,
+        "#454b53"
+    );
+
+    beltGradient.addColorStop(
+        0.5,
+        "#1c2026"
+    );
+
+    beltGradient.addColorStop(
+        1,
+        "#090b0f"
+    );
+
+
+    ctx.fillStyle =
+        beltGradient;
+
+
+    roundRect(
+        left,
+        top,
+        beltWidth,
+        beltHeight,
+        14
+    );
+
+
+    ctx.fill();
+
+
+    /*
+       Belt edge
+    */
+
+    ctx.strokeStyle =
+        "#777";
+
+    ctx.lineWidth = 3;
+
+    roundRect(
+        left,
+        top,
+        beltWidth,
+        beltHeight,
+        14
+    );
+
+    ctx.stroke();
+
+
+    /*
+       Moving belt lines
+    */
+
+    ctx.save();
+
+    roundRect(
+        left,
+        top,
+        beltWidth,
+        beltHeight,
+        14
+    );
+
+    ctx.clip();
+
+
+    ctx.strokeStyle =
+        "#555b62";
+
+    ctx.lineWidth = 2;
+
+
+    for (
+        let x =
+            left -
+            beltWidth +
+            (oreOffset % 65);
+
+        x <
+            left +
+            beltWidth;
+
+        x += 65
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            top
+        );
+
+        ctx.lineTo(
+            x + 30,
+            top + beltHeight
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    ctx.restore();
+
+
+    /*
+       Pulleys
+    */
+
+    drawPulley(
+        left + 20,
+        top + beltHeight / 2,
+        beltHeight * 0.47
+    );
+
+
+    drawPulley(
+        left + beltWidth - 20,
+        top + beltHeight / 2,
+        beltHeight * 0.47
+    );
+
+
+    /*
+       Ore
+    */
+
+    drawOreLoad(
+        left,
+        top,
+        beltWidth,
+        beltHeight
+    );
+
+
+    /*
+       Joints
+    */
+
+    const spacing =
+        beltWidth / joints.length;
+
+
+    joints.forEach(
+        (joint,index) => {
+
+            const x =
+                left +
+                spacing * index +
+                spacing / 2;
+
+
+            const y =
+                top +
+                beltHeight / 2;
+
+
+            drawJoint(
+                x,
+                y,
+                joint
+            );
+
+        }
+    );
+
+
+    /*
+       Sensor rail parallel to belt
+    */
+
+    const sensorY =
+        top +
+        beltHeight +
+        65;
+
+
+    ctx.strokeStyle =
+        "#00a8c6";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        left,
+        sensorY
+    );
+
+    ctx.lineTo(
+        left + beltWidth,
+        sensorY
+    );
+
+    ctx.stroke();
+
+
+    /*
+       Sensor labels
+    */
+
+    ctx.fillStyle =
+        "#00d9ff";
+
+    ctx.font =
+        "11px Arial";
+
+    ctx.textAlign =
+        "center";
+
+    ctx.fillText(
+        "WIRELESS SENSOR NETWORK",
+        centerX,
+        sensorY + 30
+    );
+
+
+    /*
+       Camera bar
+    */
+
+    const cameraY =
+        top - 90;
+
+
+    ctx.strokeStyle =
+        "#888";
+
+    ctx.lineWidth = 7;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        left,
+        cameraY
+    );
+
+    ctx.lineTo(
+        left + beltWidth,
+        cameraY
+    );
+
+    ctx.stroke();
+
+
+    /*
+       Cameras
+    */
+
+    for (
+        let i = 0;
+        i < 3;
+        i++
+    ) {
+
+        const cameraX =
+            left +
+            90 +
+            i *
+            ((beltWidth - 180) / 2);
+
+
+        drawCamera(
+            cameraX,
+            cameraY
+        );
+
+    }
+
+
+    /*
+       Camera label
+    */
+
+    ctx.fillStyle =
+        "#bbb";
+
+    ctx.font =
+        "12px Arial";
+
+    ctx.fillText(
+        "OVERHEAD RGB / THERMAL CAMERAS",
+        centerX,
+        cameraY - 20
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   ROUNDED RECTANGLE
+   ------------------------------------------------------------ */
+
+function roundRect(
+    x,
+    y,
+    w,
+    h,
+    r
+) {
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + r,
+        y
+    );
+
+    ctx.lineTo(
+        x + w - r,
+        y
+    );
+
+    ctx.quadraticCurveTo(
+        x + w,
+        y,
+        x + w,
+        y + r
+    );
+
+    ctx.lineTo(
+        x + w,
+        y + h - r
+    );
+
+    ctx.quadraticCurveTo(
+        x + w,
+        y + h,
+        x + w - r,
+        y + h
+    );
+
+    ctx.lineTo(
+        x + r,
+        y + h
+    );
+
+    ctx.quadraticCurveTo(
+        x,
+        y + h,
+        x,
+        y + h - r
+    );
+
+    ctx.lineTo(
+        x,
+        y + r
+    );
+
+    ctx.quadraticCurveTo(
+        x,
+        y,
+        x + r,
+        y
+    );
+
+    ctx.closePath();
+
+}
+
+
+/* ------------------------------------------------------------
+   DASHBOARD
+   ------------------------------------------------------------ */
+
+function updateDashboard() {
+
+    const table =
+        document.getElementById(
+            "jointTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    let criticalFound =
+        false;
+
+
+    joints.forEach(
+        joint => {
+
+            const data =
+                getJointData(joint);
+
+
+            if (
+                data.risk === "Critical"
+            ) {
+
+                criticalFound =
+                    true;
+
+            }
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    <b>${joint.id}</b>
+                </td>
+
+                <td>
+                    ${data.health.toFixed(1)}%
+                </td>
+
+                <td>
+                    ${data.rul.toFixed(1)} d
+                </td>
+
+                <td
+                    class="risk"
+                    style="
+                    background:${riskColor(data.risk)}
+                    "
+                >
+                    ${data.risk}
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+
+    /*
+       Alert
+    */
+
+    const alert =
+        document.getElementById(
+            "alert"
+        );
+
+
+    if (criticalFound) {
+
+        alert.style.display =
+            "block";
+
+    } else {
+
+        alert.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* ------------------------------------------------------------
+   SENSOR SIMULATION
+   ------------------------------------------------------------ */
+
+function updateSensors() {
+
+    let vibration =
+        2.2 +
+        Math.random() * 1.5;
+
+
+    let tension =
+        68 +
+        Math.random() * 5;
+
+
+    let temperature =
+        35 +
+        Math.random() * 3;
+
+
+    /*
+       Worst joint influences
+       sensor readings
+    */
+
+    joints.forEach(
+        joint => {
+
+            const data =
+                getJointData(joint);
+
+
+            if (
+                data.risk === "Medium"
+            ) {
+
+                vibration += 0.8;
+
+            }
+
+
+            if (
+                data.risk === "High"
+            ) {
+
+                vibration += 1.8;
+                tension += 3;
+                temperature += 2;
+
+            }
+
+
+            if (
+                data.risk === "Critical"
+            ) {
+
+                vibration += 3.5;
+                tension += 7;
+                temperature += 5;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "vibration"
+    ).textContent =
+        vibration.toFixed(2)
+        + " mm/s";
+
+
+    document.getElementById(
+        "tension"
+    ).textContent =
+        tension.toFixed(1)
+        + " kN";
+
+
+    document.getElementById(
+        "temperature"
+    ).textContent =
+        temperature.toFixed(1)
+        + " °C";
+
+
+    const confidence =
+        92 +
+        Math.random() * 6;
+
+
+    document.getElementById(
+        "confidence"
+    ).textContent =
+        confidence.toFixed(1)
+        + "%";
+
+}
+
+
+/* ------------------------------------------------------------
+   SIMULATION TIME
+   ------------------------------------------------------------ */
+
+let simulationTime = 0;
+
+let lastTimestamp = 0;
+
+
+/* ------------------------------------------------------------
+   ANIMATION
+   ------------------------------------------------------------ */
+
+function animate(timestamp) {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    if (!lastTimestamp) {
+
+        lastTimestamp =
+            timestamp;
+
+    }
+
+
+    const delta =
+        timestamp -
+        lastTimestamp;
+
+
+    lastTimestamp =
+        timestamp;
+
+
+    /*
+       Belt moves only when STARTED
+    */
+
+    if (beltRunning) {
+
+        oreOffset +=
+            beltSpeed *
+            delta *
+            0.08;
+
+
+        simulationTime +=
+            delta *
+            0.001 *
+            beltSpeed;
+
+    }
+
+
+    /*
+       Draw
+    */
+
+    drawBackground();
+
+    drawConveyor();
+
+
+    /*
+       Dashboard updates
+    */
+
+    updateDashboard();
+
+    updateSensors();
+
+
+    /*
+       Time
+    */
+
+    document.getElementById(
+        "timeDisplay"
+    ).textContent =
+        "Simulation Time: "
+        +
+        formatTime(
+            simulationTime
+        );
+
+}
+
+
+/* ------------------------------------------------------------
+   TIME FORMAT
+   ------------------------------------------------------------ */
+
+function formatTime(
+    seconds
+) {
+
+    const h =
+        Math.floor(
+            seconds / 3600
+        );
+
+
+    const m =
+        Math.floor(
+            (seconds % 3600) / 60
+        );
+
+
+    const s =
+        Math.floor(
+            seconds % 60
+        );
+
+
+    return (
+        String(h).padStart(2,"0")
+        + ":"
+        +
+        String(m).padStart(2,"0")
+        + ":"
+        +
+        String(s).padStart(2,"0")
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   INITIAL STATE
    ------------------------------------------------------------ */
 
 updateDashboard();
 
 updateSensors();
-
-
-/* ------------------------------------------------------------
-   Start
-   ------------------------------------------------------------ */
 
 requestAnimationFrame(
     animate
