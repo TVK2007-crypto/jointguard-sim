@@ -1,338 +1,1588 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>JointGuard – 3D Digital Twin Simulation</title>
-  <style>
-    body {
-      margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #000;
-      color: #eee;
-    }
-    #info {
-      position: absolute; top: 10px; left: 10px; color: #fff;
-      background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 4px;
-      font-size: 14px; pointer-events: none; max-width: 320px;
-    }
-    #legend {
-      position: absolute; bottom: 10px; left: 10px; color: #fff;
-      background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 4px;
-      font-size: 13px; pointer-events: none;
-    }
-    .dot {
-      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-      margin-right: 6px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JointGuard – Conveyor Digital Twin</title>
 
-    /* Dashboard panel */
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #05070d;
+    color: white;
+}
+
+/* Canvas */
+#canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Top information */
+#info {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.78);
+    border: 1px solid #333;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    pointer-events: none;
+}
+
+/* Dashboard */
+#dashboard {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 330px;
+    max-height: calc(100vh - 30px);
+    overflow-y: auto;
+
+    background: rgba(5,7,13,0.94);
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 15px;
+
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+}
+
+#dashboard h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.section-title {
+    font-size: 14px;
+    color: #ddd;
+    margin: 14px 0 7px;
+}
+
+/* System status */
+.status-box {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px;
+    background: #11151d;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.status-value {
+    font-weight: bold;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+th {
+    background: #1b1f27;
+    padding: 7px 4px;
+    border: 1px solid #3b3f47;
+}
+
+td {
+    padding: 6px 3px;
+    border: 1px solid #30343c;
+    text-align: center;
+}
+
+.risk {
+    color: #000;
+    font-weight: bold;
+    border-radius: 3px;
+}
+
+/* Sensor cards */
+.sensor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.sensor {
+    background: #11151d;
+    padding: 9px;
+    border-radius: 6px;
+}
+
+.sensor-name {
+    color: #999;
+    font-size: 10px;
+}
+
+.sensor-value {
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 3px;
+}
+
+/* Controls */
+.controls {
+    margin-top: 14px;
+}
+
+button {
+    width: 100%;
+    padding: 9px;
+    margin-bottom: 8px;
+
+    background: #1b1f27;
+    color: white;
+
+    border: 1px solid #555;
+    border-radius: 5px;
+
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #303640;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+/* Legend */
+#legend {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+
+    background: rgba(0,0,0,0.78);
+    border: 1px solid #333;
+    border-radius: 8px;
+
+    padding: 10px 14px;
+    font-size: 12px;
+}
+
+.legend-row {
+    margin: 4px 0;
+}
+
+.dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* AI alert */
+#alert {
+    position: absolute;
+    left: 50%;
+    bottom: 20px;
+
+    transform: translateX(-50%);
+
+    background: rgba(100,0,0,0.92);
+    border: 1px solid red;
+
+    padding: 10px 20px;
+    border-radius: 7px;
+
+    font-weight: bold;
+    display: none;
+
+    box-shadow: 0 0 20px rgba(255,0,0,0.5);
+}
+
+/* Mobile */
+@media(max-width:800px) {
+
     #dashboard {
-      position: absolute; top: 10px; right: 10px; width: 260px;
-      background: rgba(0,0,0,0.8); border: 1px solid #444;
-      border-radius: 6px; padding: 10px; font-size: 13px;
-      max-height: 90vh; overflow: auto;
+        width: 290px;
+        font-size: 11px;
     }
-    #dashboard h3 {
-      margin: 0 0 8px 0; font-size: 15px; color: #fff;
+
+    #info {
+        max-width: 250px;
     }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 6px;
-    }
-    th, td {
-      border: 1px solid #555; padding: 4px 6px; text-align: center;
-      font-size: 12px;
-    }
-    th { background: #222; }
-    .controls {
-      margin-top: 10px; display: flex; flex-direction: column; gap: 6px;
-    }
-    button, input[type="range"] {
-      width: 100%;
-    }
-  </style>
+}
+</style>
 </head>
+
 <body>
-  <div id="info">JointGuard 3D Simulation – Loading...</div>
 
-  <div id="legend">
-    <div><span class="dot" style="background:#00ff00"></span>Low risk</div>
-    <div><span class="dot" style="background:#ffff00"></span>Medium risk</div>
-    <div><span class="dot" style="background:#ffa500"></span>High risk</div>
-    <div><span class="dot" style="background:#ff0000"></span>Critical risk</div>
-  </div>
+<canvas id="canvas"></canvas>
 
-  <!-- Dashboard -->
-  <div id="dashboard">
-    <h3>JointGuard Dashboard</h3>
-    <div id="timeDisplay">Time: --</div>
+<!-- Information -->
+<div id="info">
+    <b>JointGuard – Conveyor Digital Twin</b><br>
+    AI/ML Monitoring System<br>
+    <span id="simulationTime">Time: --</span>
+</div>
 
-    <h4>Joint Status</h4>
-    <table id="jointTable">
-      <thead>
-        <tr>
-          <th>Joint</th>
-          <th>Health</th>
-          <th>RUL (d)</th>
-          <th>Risk</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Filled by JS -->
-      </tbody>
+<!-- Legend -->
+<div id="legend">
+
+    <div class="legend-row">
+        <span class="dot" style="background:#00ff00"></span>
+        Low Risk
+    </div>
+
+    <div class="legend-row">
+        <span class="dot" style="background:#ffff00"></span>
+        Medium Risk
+    </div>
+
+    <div class="legend-row">
+        <span class="dot" style="background:#ffa500"></span>
+        High Risk
+    </div>
+
+    <div class="legend-row">
+        <span class="dot" style="background:#ff0000"></span>
+        Critical Risk
+    </div>
+
+</div>
+
+<!-- Alert -->
+<div id="alert">
+    ⚠ CRITICAL JOINT ALERT
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+
+    <h2>JointGuard</h2>
+
+    <div class="subtitle">
+        Conveyor Belt Joint Monitoring System
+    </div>
+
+    <div class="status-box">
+        <span>System Status</span>
+        <span id="systemStatus" class="status-value">
+            MONITORING
+        </span>
+    </div>
+
+    <div class="status-box">
+        <span>AI Detection</span>
+        <span id="aiStatus" class="status-value">
+            ACTIVE
+        </span>
+    </div>
+
+    <div class="section-title">
+        Joint Health
+    </div>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Joint</th>
+                <th>Health</th>
+                <th>RUL</th>
+                <th>Risk</th>
+            </tr>
+        </thead>
+
+        <tbody id="jointTable">
+        </tbody>
+
     </table>
 
-    <div class="controls">
-      <button id="playPauseBtn">Pause</button>
-      <label>
-        Speed:
-        <input type="range" id="speedSlider" min="1" max="10" value="5" />
-      </label>
+    <div class="section-title">
+        Live Sensor Data
     </div>
-  </div>
 
-  <!-- Three.js from CDN -->
-  <script type="importmap">
+    <div class="sensor-grid">
+
+        <div class="sensor">
+            <div class="sensor-name">
+                VIBRATION
+            </div>
+
+            <div class="sensor-value" id="vibration">
+                --
+            </div>
+        </div>
+
+        <div class="sensor">
+            <div class="sensor-name">
+                TENSION
+            </div>
+
+            <div class="sensor-value" id="tension">
+                --
+            </div>
+        </div>
+
+        <div class="sensor">
+            <div class="sensor-name">
+                TEMPERATURE
+            </div>
+
+            <div class="sensor-value" id="temperature">
+                --
+            </div>
+        </div>
+
+        <div class="sensor">
+            <div class="sensor-name">
+                AI CONFIDENCE
+            </div>
+
+            <div class="sensor-value" id="confidence">
+                --
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+
+        <button id="playPause">
+            ⏸ Pause Simulation
+        </button>
+
+        <label>
+            Simulation Speed
+        </label>
+
+        <input
+            type="range"
+            id="speed"
+            min="1"
+            max="10"
+            value="5"
+        >
+
+        <div style="text-align:center;color:#aaa;margin-top:5px;">
+            Speed: <span id="speedValue">5x</span>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ============================================================
+   JOINTGUARD
+   Standalone Conveyor Digital Twin
+   No external libraries
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   Canvas setup
+   ------------------------------------------------------------ */
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let width;
+let height;
+
+function resizeCanvas() {
+
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+
+
+/* ------------------------------------------------------------
+   Joint dataset
+   ------------------------------------------------------------ */
+
+const joints = [
+
     {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
+        id: "J1",
+        health: 96,
+        rul: 185,
+        risk: "Low"
+    },
+
+    {
+        id: "J2",
+        health: 82,
+        rul: 110,
+        risk: "Medium"
+    },
+
+    {
+        id: "J3",
+        health: 67,
+        rul: 58,
+        risk: "High"
+    },
+
+    {
+        id: "J4",
+        health: 38,
+        rul: 19,
+        risk: "Critical"
+    },
+
+    {
+        id: "J5",
+        health: 91,
+        rul: 145,
+        risk: "Low"
     }
-  </script>
 
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+];
 
-    // Scene, camera, renderer
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a12);
 
-    const camera = new THREE.PerspectiveCamera(
-      60, window.innerWidth / window.innerHeight, 0.1, 1000
+/* ------------------------------------------------------------
+   Risk colors
+   ------------------------------------------------------------ */
+
+function getRiskColor(risk) {
+
+    if (risk === "Low")
+        return "#00ff00";
+
+    if (risk === "Medium")
+        return "#ffff00";
+
+    if (risk === "High")
+        return "#ffa500";
+
+    if (risk === "Critical")
+        return "#ff0000";
+
+    return "#ffffff";
+}
+
+
+/* ------------------------------------------------------------
+   Conveyor geometry
+   ------------------------------------------------------------ */
+
+let beltOffset = 0;
+
+
+/*
+    Draw pseudo-3D conveyor
+*/
+
+function drawConveyor() {
+
+    /*
+        Position conveyor in lower-middle
+    */
+
+    const centerX = width * 0.40;
+    const centerY = height * 0.55;
+
+    const beltWidth = Math.min(width * 0.65, 850);
+    const beltHeight = Math.min(height * 0.18, 150);
+
+    const left = centerX - beltWidth / 2;
+    const top = centerY - beltHeight / 2;
+
+
+    /* Ground shadow */
+
+    ctx.save();
+
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        centerX,
+        top + beltHeight + 60,
+        beltWidth * 0.52,
+        30,
+        0,
+        0,
+        Math.PI * 2
     );
-    camera.position.set(9, 7, 9);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    ctx.fill();
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.target.set(0, 0.5, 0);
+    ctx.restore();
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambient);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    dirLight.position.set(6, 10, 6);
-    scene.add(dirLight);
 
-    // Ground
-    const groundGeo = new THREE.PlaneGeometry(40, 40);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.5;
-    scene.add(ground);
+    /* Conveyor belt */
 
-    // Conveyor belt (long box)
-    const beltGeo = new THREE.BoxGeometry(12, 0.25, 1.6);
-    const beltMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-    const belt = new THREE.Mesh(beltGeo, beltMat);
-    belt.position.y = 0;
-    scene.add(belt);
+    const gradient = ctx.createLinearGradient(
+        0,
+        top,
+        0,
+        top + beltHeight
+    );
 
-    // Pulleys
-    const pulleyGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.8, 24);
-    const pulleyMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
-    const pulleyLeft = new THREE.Mesh(pulleyGeo, pulleyMat);
-    pulleyLeft.rotation.z = Math.PI / 2;
-    pulleyLeft.position.set(-6.2, 0, 0);
-    scene.add(pulleyLeft);
+    gradient.addColorStop(0, "#3b3f46");
+    gradient.addColorStop(0.45, "#171a1f");
+    gradient.addColorStop(1, "#080a0d");
 
-    const pulleyRight = new THREE.Mesh(pulleyGeo, pulleyMat);
-    pulleyRight.rotation.z = Math.PI / 2;
-    pulleyRight.position.set(6.2, 0, 0);
-    scene.add(pulleyRight);
+    ctx.fillStyle = gradient;
 
-    // Joints
-    const jointCount = 5;
-    const jointMeshes = [];
-    const jointDataMap = new Map();
+    roundRect(
+        ctx,
+        left,
+        top,
+        beltWidth,
+        beltHeight,
+        15
+    );
 
-    const jointGroup = new THREE.Group();
-    scene.add(jointGroup);
+    ctx.fill();
 
-    for (let i = 0; i < jointCount; i++) {
-      const jGeo = new THREE.BoxGeometry(0.5, 0.3, 1.65);
-      const jMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-      const jMesh = new THREE.Mesh(jGeo, jMat);
-      jMesh.position.x = -5 + i * 2.5;
-      jMesh.position.y = 0.13;
-      jointGroup.add(jMesh);
-      jointMeshes.push(jMesh);
 
-      // Label "J1", "J2", ...
-      const canvas = document.createElement('canvas');
-      canvas.width = 256; canvas.height = 64;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 28px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(`J${i+1}`, 128, 40);
-      const tex = new THREE.CanvasTexture(canvas);
-      const labelMat = new THREE.SpriteMaterial({ map: tex });
-      const label = new THREE.Sprite(labelMat);
-      label.position.set(jMesh.position.x, 0.8, 0);
-      label.scale.set(1.2, 0.3, 1);
-      jointGroup.add(label);
+    /*
+        Belt side
+    */
+
+    ctx.fillStyle = "#090b0e";
+
+    ctx.fillRect(
+        left,
+        top + beltHeight - 12,
+        beltWidth,
+        25
+    );
+
+
+    /*
+        Moving belt markings
+    */
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    roundRect(
+        ctx,
+        left,
+        top,
+        beltWidth,
+        beltHeight,
+        15
+    );
+
+    ctx.clip();
+
+    ctx.strokeStyle = "#555a62";
+    ctx.lineWidth = 2;
+
+    beltOffset += 0.7;
+
+    for (
+        let x = left - beltWidth + (beltOffset % 70);
+        x < left + beltWidth;
+        x += 70
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x, top);
+        ctx.lineTo(x + 35, top + beltHeight);
+
+        ctx.stroke();
+
     }
 
-    // Overhead camera bar
-    const camBarGeo = new THREE.BoxGeometry(12, 0.12, 0.25);
-    const camBarMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
-    const camBar = new THREE.Mesh(camBarGeo, camBarMat);
-    camBar.position.set(0, 1.4, 0);
-    scene.add(camBar);
+    ctx.restore();
 
-    // Small "camera" boxes on the bar
+
+    /*
+        Pulleys
+    */
+
+    drawPulley(
+        left + 20,
+        top + beltHeight / 2,
+        beltHeight * 0.48
+    );
+
+    drawPulley(
+        left + beltWidth - 20,
+        top + beltHeight / 2,
+        beltHeight * 0.48
+    );
+
+
+    /*
+        Joints
+    */
+
+    const spacing = beltWidth / 5;
+
+    joints.forEach((joint, index) => {
+
+        const x =
+            left +
+            spacing * index +
+            spacing / 2;
+
+        const y =
+            top +
+            beltHeight / 2;
+
+        drawJoint(
+            x,
+            y,
+            joint
+        );
+
+    });
+
+
+    /*
+        Overhead camera rail
+    */
+
+    const cameraY = top - 100;
+
+    ctx.strokeStyle = "#888";
+    ctx.lineWidth = 7;
+
+    ctx.beginPath();
+
+    ctx.moveTo(left, cameraY);
+    ctx.lineTo(left + beltWidth, cameraY);
+
+    ctx.stroke();
+
+
+    /*
+        Camera supports
+    */
+
+    ctx.strokeStyle = "#555";
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+    ctx.moveTo(left + 30, cameraY);
+    ctx.lineTo(left + 30, top - 15);
+
+    ctx.moveTo(left + beltWidth - 30, cameraY);
+    ctx.lineTo(left + beltWidth - 30, top - 15);
+
+    ctx.stroke();
+
+
+    /*
+        Cameras
+    */
+
     for (let i = 0; i < 3; i++) {
-      const camGeo = new THREE.BoxGeometry(0.4, 0.15, 0.2);
-      const camMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
-      const cam = new THREE.Mesh(camGeo, camMat);
-      cam.position.set(-4 + i * 4, 1.4, 0);
-      scene.add(cam);
+
+        const cameraX =
+            left +
+            80 +
+            i * ((beltWidth - 160) / 2);
+
+        drawCamera(
+            cameraX,
+            cameraY
+        );
+
     }
 
-    // Dashboard elements
-    const infoEl = document.getElementById('info');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const jointTableBody = document.querySelector('#jointTable tbody');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const speedSlider = document.getElementById('speedSlider');
+}
 
-    // Dataset
-    let dataset = [];
-    let currentTimeIndex = 0;
-    let isPlaying = true;
-    let speedFactor = 5; // 1–10
-    let frameCounter = 0;
-    let framesPerStep = 10; // will be adjusted by speed
 
-    function riskToColor(risk) {
-      switch (risk) {
-        case 'Low': return 0x00ff00;
-        case 'Medium': return 0xffff00;
-        case 'High': return 0xffa500;
-        case 'Critical': return 0xff0000;
-        default: return 0x00ff00;
-      }
+/* ------------------------------------------------------------
+   Rounded rectangle helper
+   ------------------------------------------------------------ */
+
+function roundRect(
+    context,
+    x,
+    y,
+    w,
+    h,
+    r
+) {
+
+    context.beginPath();
+
+    context.moveTo(x + r, y);
+
+    context.lineTo(x + w - r, y);
+
+    context.quadraticCurveTo(
+        x + w,
+        y,
+        x + w,
+        y + r
+    );
+
+    context.lineTo(
+        x + w,
+        y + h - r
+    );
+
+    context.quadraticCurveTo(
+        x + w,
+        y + h,
+        x + w - r,
+        y + h
+    );
+
+    context.lineTo(
+        x + r,
+        y + h
+    );
+
+    context.quadraticCurveTo(
+        x,
+        y + h,
+        x,
+        y + h - r
+    );
+
+    context.lineTo(
+        x,
+        y + r
+    );
+
+    context.quadraticCurveTo(
+        x,
+        y,
+        x + r,
+        y
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   Pulley
+   ------------------------------------------------------------ */
+
+function drawPulley(
+    x,
+    y,
+    radius
+) {
+
+    ctx.save();
+
+    ctx.fillStyle = "#444";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        radius,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    ctx.strokeStyle = "#888";
+    ctx.lineWidth = 5;
+
+    ctx.stroke();
+
+
+    ctx.fillStyle = "#222";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        radius * 0.55,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle = "#aaa";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y,
+        radius * 0.15,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* ------------------------------------------------------------
+   Joint
+   ------------------------------------------------------------ */
+
+function drawJoint(
+    x,
+    y,
+    joint
+) {
+
+    const color =
+        getRiskColor(joint.risk);
+
+
+    /*
+        Glow for dangerous joints
+    */
+
+    if (
+        joint.risk === "High" ||
+        joint.risk === "Critical"
+    ) {
+
+        ctx.save();
+
+        ctx.shadowBlur =
+            joint.risk === "Critical"
+                ? 25
+                : 15;
+
+        ctx.shadowColor = color;
+
+        ctx.fillStyle = color;
+
+        ctx.fillRect(
+            x - 18,
+            y - 12,
+            36,
+            24
+        );
+
+        ctx.restore();
+
     }
 
-    async function loadData() {
-      // IMPORTANT: Replace with your GitHub username and repo
-      const url = 'https://raw.githubusercontent.com/TVK2007-crypto/jointguard-sim/main/data.json';
 
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to load data.json');
-        dataset = await res.json();
-        if (!dataset || dataset.length === 0) throw new Error('Empty dataset');
-        updateScene(dataset[0]);
-        infoEl.textContent = `JointGuard 3D Simulation – Time: ${dataset[0].timestamp}`;
-        timeDisplay.textContent = `Time: ${dataset[0].timestamp}`;
-      } catch (err) {
-        infoEl.textContent = 'Error loading dataset. Check console for details.';
-        console.error(err);
-      }
+    /*
+        Joint body
+    */
+
+    ctx.fillStyle = color;
+
+    ctx.fillRect(
+        x - 18,
+        y - 12,
+        36,
+        24
+    );
+
+
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        x - 18,
+        y - 12,
+        36,
+        24
+    );
+
+
+    /*
+        Joint label
+    */
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Arial";
+    ctx.textAlign = "center";
+
+    ctx.fillText(
+        joint.id,
+        x,
+        y - 28
+    );
+
+
+    /*
+        Sensor symbol
+    */
+
+    ctx.fillStyle = "#00d9ff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y + 22,
+        4,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+}
+
+
+/* ------------------------------------------------------------
+   Camera
+   ------------------------------------------------------------ */
+
+function drawCamera(
+    x,
+    y
+) {
+
+    ctx.save();
+
+    /*
+        Camera body
+    */
+
+    ctx.fillStyle = "#aaa";
+
+    ctx.fillRect(
+        x - 17,
+        y - 13,
+        34,
+        20
+    );
+
+
+    /*
+        Lens
+    */
+
+    ctx.fillStyle = "#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x,
+        y + 7,
+        7,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+        AI scanning beam
+    */
+
+    ctx.globalAlpha = 0.08;
+
+    ctx.fillStyle = "#00d9ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(x - 10, y + 10);
+
+    ctx.lineTo(x - 80, y + 160);
+
+    ctx.lineTo(x + 80, y + 160);
+
+    ctx.lineTo(x + 10, y + 10);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.restore();
+
+}
+
+
+/* ------------------------------------------------------------
+   Dashboard
+   ------------------------------------------------------------ */
+
+function updateDashboard() {
+
+    const table =
+        document.getElementById("jointTable");
+
+    table.innerHTML = "";
+
+
+    joints.forEach(joint => {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                <b>${joint.id}</b>
+            </td>
+
+            <td>
+                ${joint.health.toFixed(1)}%
+            </td>
+
+            <td>
+                ${joint.rul.toFixed(1)} d
+            </td>
+
+            <td
+                class="risk"
+                style="
+                    background:${getRiskColor(joint.risk)}
+                "
+            >
+                ${joint.risk}
+            </td>
+
+        `;
+
+        table.appendChild(row);
+
+    });
+
+
+    /*
+        Find worst joint
+    */
+
+    const riskOrder = {
+
+        Low: 1,
+        Medium: 2,
+        High: 3,
+        Critical: 4
+
+    };
+
+
+    let worst =
+        joints.reduce(
+            (a,b) =>
+                riskOrder[a.risk] >
+                riskOrder[b.risk]
+                    ? a
+                    : b
+        );
+
+
+    /*
+        Critical alert
+    */
+
+    const alert =
+        document.getElementById("alert");
+
+
+    if (worst.risk === "Critical") {
+
+        alert.style.display = "block";
+
+        document.getElementById(
+            "systemStatus"
+        ).textContent = "ALERT";
+
+        document.getElementById(
+            "systemStatus"
+        ).style.color = "#ff3333";
+
+    } else {
+
+        alert.style.display = "none";
+
+        document.getElementById(
+            "systemStatus"
+        ).textContent = "MONITORING";
+
+        document.getElementById(
+            "systemStatus"
+        ).style.color = "#00ff88";
+
     }
 
-    function updateJointTable(jointsData) {
-      jointTableBody.innerHTML = '';
-      jointsData.forEach(j => {
-        const tr = document.createElement('tr');
+}
 
-        const tdId = document.createElement('td');
-        tdId.textContent = j.id;
-        tr.appendChild(tdId);
 
-        const tdHealth = document.createElement('td');
-        tdHealth.textContent = j.health.toFixed(2);
-        tr.appendChild(tdHealth);
+/* ------------------------------------------------------------
+   Simulated sensor values
+   ------------------------------------------------------------ */
 
-        const tdRul = document.createElement('td');
-        tdRul.textContent = j.rul_days.toFixed(1);
-        tr.appendChild(tdRul);
+function updateSensors() {
 
-        const tdRisk = document.createElement('td');
-        tdRisk.textContent = j.risk;
-        if (j.risk === 'Low') tdRisk.style.background = '#00ff00';
-        else if (j.risk === 'Medium') tdRisk.style.background = '#ffff00';
-        else if (j.risk === 'High') tdRisk.style.background = '#ffa500';
-        else if (j.risk === 'Critical') tdRisk.style.background = '#ff0000';
-        tr.appendChild(tdRisk);
+    /*
+        Random realistic-looking sensor data
+    */
 
-        jointTableBody.appendChild(tr);
-      });
+    const vibration =
+        2.5 +
+        Math.random() * 2.5;
+
+    const tension =
+        68 +
+        Math.random() * 14;
+
+    const temperature =
+        35 +
+        Math.random() * 8;
+
+
+    /*
+        Higher vibration around damaged joints
+    */
+
+    const damagedJoint =
+        joints.find(
+            j =>
+                j.risk === "Critical" ||
+                j.risk === "High"
+        );
+
+
+    let finalVibration =
+        vibration;
+
+
+    if (damagedJoint) {
+
+        finalVibration +=
+            damagedJoint.risk === "Critical"
+                ? 3
+                : 1.5;
+
     }
 
-    function updateScene(row) {
-      const jointsData = row.joints;
 
-      jointsData.forEach((j, idx) => {
-        if (idx >= jointMeshes.length) return;
-        const mesh = jointMeshes[idx];
-        mesh.material.color.setHex(riskToColor(j.risk));
-        jointDataMap.set(j.id, j);
-      });
+    document.getElementById(
+        "vibration"
+    ).textContent =
+        finalVibration.toFixed(2)
+        + " mm/s";
 
-      infoEl.innerHTML = `
-        JointGuard 3D Simulation – Time: ${row.timestamp}<br/>
-        Showing joint risk levels (color-coded).
-      `;
-      timeDisplay.textContent = `Time: ${row.timestamp}`;
-      updateJointTable(jointsData);
-    }
 
-    // Animation loop
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
+    document.getElementById(
+        "tension"
+    ).textContent =
+        tension.toFixed(1)
+        + " kN";
 
-      if (isPlaying && dataset.length > 0) {
-        frameCounter++;
-        framesPerStep = 11 - speedFactor; // higher speed → fewer frames per step
-        if (frameCounter >= framesPerStep) {
-          frameCounter = 0;
-          const row = dataset[currentTimeIndex];
-          updateScene(row);
-          currentTimeIndex = (currentTimeIndex + 1) % dataset.length;
+
+    document.getElementById(
+        "temperature"
+    ).textContent =
+        temperature.toFixed(1)
+        + " °C";
+
+
+    /*
+        AI confidence
+    */
+
+    const confidence =
+        91 + Math.random() * 7;
+
+
+    document.getElementById(
+        "confidence"
+    ).textContent =
+        confidence.toFixed(1)
+        + "%";
+
+}
+
+
+/* ------------------------------------------------------------
+   Simulated AI prediction
+   ------------------------------------------------------------ */
+
+function simulateAI() {
+
+    joints.forEach(joint => {
+
+        /*
+            Slowly degrade health
+        */
+
+        if (
+            joint.risk === "Critical"
+        ) {
+
+            joint.health -=
+                0.003;
+
+            joint.rul -=
+                0.01;
+
         }
-      }
 
-      renderer.render(scene, camera);
+        else if (
+            joint.risk === "High"
+        ) {
+
+            joint.health -=
+                0.001;
+
+            joint.rul -=
+                0.005;
+
+        }
+
+
+        /*
+            Prevent negative values
+        */
+
+        joint.health =
+            Math.max(
+                0,
+                joint.health
+            );
+
+        joint.rul =
+            Math.max(
+                0,
+                joint.rul
+            );
+
+    });
+
+}
+
+
+/* ------------------------------------------------------------
+   Animation
+   ------------------------------------------------------------ */
+
+let running = true;
+
+let speed = 5;
+
+let lastTime = 0;
+
+let simulationSeconds = 0;
+
+
+function animate(timestamp) {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    /*
+        Delta time
+    */
+
+    const delta =
+        timestamp - lastTime;
+
+    lastTime = timestamp;
+
+
+    /*
+        Clear screen
+    */
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /*
+        Background gradient
+    */
+
+    const bg =
+        ctx.createRadialGradient(
+            width * 0.35,
+            height * 0.45,
+            50,
+            width * 0.35,
+            height * 0.45,
+            width
+        );
+
+    bg.addColorStop(
+        0,
+        "#141b27"
+    );
+
+    bg.addColorStop(
+        1,
+        "#030409"
+    );
+
+
+    ctx.fillStyle = bg;
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /*
+        Floor grid
+    */
+
+    drawGrid();
+
+
+    /*
+        Simulation
+    */
+
+    if (running) {
+
+        simulationSeconds +=
+            delta * 0.001 * speed;
+
+        simulateAI();
+
     }
 
-    // Controls
-    playPauseBtn.addEventListener('click', () => {
-      isPlaying = !isPlaying;
-      playPauseBtn.textContent = isPlaying ? 'Pause' : 'Play';
-    });
 
-    speedSlider.addEventListener('input', () => {
-      speedFactor = parseInt(speedSlider.value, 10);
-    });
+    /*
+        Conveyor
+    */
 
-    // Init
-    loadData().then(() => {
-      animate();
-    });
+    drawConveyor();
 
-    // Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
+
+    /*
+        Sensors
+    */
+
+    if (running) {
+
+        updateSensors();
+
+        updateDashboard();
+
+    }
+
+
+    /*
+        Simulation time
+    */
+
+    document.getElementById(
+        "simulationTime"
+    ).textContent =
+        "Simulation Time: "
+        + formatTime(
+            simulationSeconds
+        );
+
+}
+
+
+/* ------------------------------------------------------------
+   Floor grid
+   ------------------------------------------------------------ */
+
+function drawGrid() {
+
+    ctx.save();
+
+    ctx.strokeStyle =
+        "rgba(100,120,140,0.12)";
+
+    ctx.lineWidth = 1;
+
+
+    const spacing = 50;
+
+
+    for (
+        let x = 0;
+        x < width;
+        x += spacing
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(x, height * 0.65);
+
+        ctx.lineTo(
+            width / 2 +
+            (x - width / 2) * 1.8,
+            height
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    for (
+        let y = height * 0.65;
+        y < height;
+        y += spacing
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+}
+
+
+/* ------------------------------------------------------------
+   Time formatting
+   ------------------------------------------------------------ */
+
+function formatTime(seconds) {
+
+    const hours =
+        Math.floor(
+            seconds / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (seconds % 3600) / 60
+        );
+
+    const secs =
+        Math.floor(
+            seconds % 60
+        );
+
+
+    return (
+
+        String(hours).padStart(2,"0")
+        + ":"
+        +
+        String(minutes).padStart(2,"0")
+        + ":"
+        +
+        String(secs).padStart(2,"0")
+
+    );
+
+}
+
+
+/* ------------------------------------------------------------
+   Play / Pause
+   ------------------------------------------------------------ */
+
+document
+.getElementById("playPause")
+.addEventListener(
+    "click",
+    function() {
+
+        running = !running;
+
+
+        this.textContent =
+            running
+                ? "⏸ Pause Simulation"
+                : "▶ Play Simulation";
+
+        document.getElementById(
+            "aiStatus"
+        ).textContent =
+            running
+                ? "ACTIVE"
+                : "PAUSED";
+
+    }
+);
+
+
+/* ------------------------------------------------------------
+   Speed control
+   ------------------------------------------------------------ */
+
+document
+.getElementById("speed")
+.addEventListener(
+    "input",
+    function() {
+
+        speed =
+            Number(this.value);
+
+        document.getElementById(
+            "speedValue"
+        ).textContent =
+            speed + "x";
+
+    }
+);
+
+
+/* ------------------------------------------------------------
+   Initial dashboard
+   ------------------------------------------------------------ */
+
+updateDashboard();
+
+updateSensors();
+
+
+/* ------------------------------------------------------------
+   Start
+   ------------------------------------------------------------ */
+
+requestAnimationFrame(
+    animate
+);
+
+</script>
+
 </body>
 </html>
+```
