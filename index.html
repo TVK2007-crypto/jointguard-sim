@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JointGuard – 3D Digital Twin Simulation</title>
+  <style>
+    body {
+      margin: 0; overflow: hidden; font-family: Arial, sans-serif; background: #000;
+      color: #eee;
+    }
+    #info {
+      position: absolute; top: 10px; left: 10px; color: #fff;
+      background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 4px;
+      font-size: 14px; pointer-events: none; max-width: 320px;
+    }
+    #legend {
+      position: absolute; bottom: 10px; left: 10px; color: #fff;
+      background: rgba(0,0,0,0.7); padding: 8px 12px; border-radius: 4px;
+      font-size: 13px; pointer-events: none;
+    }
+    .dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    /* Dashboard panel */
+    #dashboard {
+      position: absolute; top: 10px; right: 10px; width: 260px;
+      background: rgba(0,0,0,0.8); border: 1px solid #444;
+      border-radius: 6px; padding: 10px; font-size: 13px;
+      max-height: 90vh; overflow: auto;
+    }
+    #dashboard h3 {
+      margin: 0 0 8px 0; font-size: 15px; color: #fff;
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 6px;
+    }
+    th, td {
+      border: 1px solid #555; padding: 4px 6px; text-align: center;
+      font-size: 12px;
+    }
+    th { background: #222; }
+    .controls {
+      margin-top: 10px; display: flex; flex-direction: column; gap: 6px;
+    }
+    button, input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">JointGuard 3D Simulation – Loading...</div>
+
+  <div id="legend">
+    <div><span class="dot" style="background:#00ff00"></span>Low risk</div>
+    <div><span class="dot" style="background:#ffff00"></span>Medium risk</div>
+    <div><span class="dot" style="background:#ffa500"></span>High risk</div>
+    <div><span class="dot" style="background:#ff0000"></span>Critical risk</div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <h3>JointGuard Dashboard</h3>
+    <div id="timeDisplay">Time: --</div>
+
+    <h4>Joint Status</h4>
+    <table id="jointTable">
+      <thead>
+        <tr>
+          <th>Joint</th>
+          <th>Health</th>
+          <th>RUL (d)</th>
+          <th>Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled by JS -->
+      </tbody>
+    </table>
+
+    <div class="controls">
+      <button id="playPauseBtn">Pause</button>
+      <label>
+        Speed:
+        <input type="range" id="speedSlider" min="1" max="10" value="5" />
+      </label>
+    </div>
+  </div>
+
+  <!-- Three.js from CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // Scene, camera, renderer
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a12);
+
+    const camera = new THREE.PerspectiveCamera(
+      60, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
+    camera.position.set(9, 7, 9);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 0.5, 0);
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight.position.set(6, 10, 6);
+    scene.add(dirLight);
+
+    // Ground
+    const groundGeo = new THREE.PlaneGeometry(40, 40);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.5;
+    scene.add(ground);
+
+    // Conveyor belt (long box)
+    const beltGeo = new THREE.BoxGeometry(12, 0.25, 1.6);
+    const beltMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+    const belt = new THREE.Mesh(beltGeo, beltMat);
+    belt.position.y = 0;
+    scene.add(belt);
+
+    // Pulleys
+    const pulleyGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.8, 24);
+    const pulleyMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
+    const pulleyLeft = new THREE.Mesh(pulleyGeo, pulleyMat);
+    pulleyLeft.rotation.z = Math.PI / 2;
+    pulleyLeft.position.set(-6.2, 0, 0);
+    scene.add(pulleyLeft);
+
+    const pulleyRight = new THREE.Mesh(pulleyGeo, pulleyMat);
+    pulleyRight.rotation.z = Math.PI / 2;
+    pulleyRight.position.set(6.2, 0, 0);
+    scene.add(pulleyRight);
+
+    // Joints
+    const jointCount = 5;
+    const jointMeshes = [];
+    const jointDataMap = new Map();
+
+    const jointGroup = new THREE.Group();
+    scene.add(jointGroup);
+
+    for (let i = 0; i < jointCount; i++) {
+      const jGeo = new THREE.BoxGeometry(0.5, 0.3, 1.65);
+      const jMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+      const jMesh = new THREE.Mesh(jGeo, jMat);
+      jMesh.position.x = -5 + i * 2.5;
+      jMesh.position.y = 0.13;
+      jointGroup.add(jMesh);
+      jointMeshes.push(jMesh);
+
+      // Label "J1", "J2", ...
+      const canvas = document.createElement('canvas');
+      canvas.width = 256; canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`J${i+1}`, 128, 40);
+      const tex = new THREE.CanvasTexture(canvas);
+      const labelMat = new THREE.SpriteMaterial({ map: tex });
+      const label = new THREE.Sprite(labelMat);
+      label.position.set(jMesh.position.x, 0.8, 0);
+      label.scale.set(1.2, 0.3, 1);
+      jointGroup.add(label);
+    }
+
+    // Overhead camera bar
+    const camBarGeo = new THREE.BoxGeometry(12, 0.12, 0.25);
+    const camBarMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+    const camBar = new THREE.Mesh(camBarGeo, camBarMat);
+    camBar.position.set(0, 1.4, 0);
+    scene.add(camBar);
+
+    // Small "camera" boxes on the bar
+    for (let i = 0; i < 3; i++) {
+      const camGeo = new THREE.BoxGeometry(0.4, 0.15, 0.2);
+      const camMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+      const cam = new THREE.Mesh(camGeo, camMat);
+      cam.position.set(-4 + i * 4, 1.4, 0);
+      scene.add(cam);
+    }
+
+    // Dashboard elements
+    const infoEl = document.getElementById('info');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const jointTableBody = document.querySelector('#jointTable tbody');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const speedSlider = document.getElementById('speedSlider');
+
+    // Dataset
+    let dataset = [];
+    let currentTimeIndex = 0;
+    let isPlaying = true;
+    let speedFactor = 5; // 1–10
+    let frameCounter = 0;
+    let framesPerStep = 10; // will be adjusted by speed
+
+    function riskToColor(risk) {
+      switch (risk) {
+        case 'Low': return 0x00ff00;
+        case 'Medium': return 0xffff00;
+        case 'High': return 0xffa500;
+        case 'Critical': return 0xff0000;
+        default: return 0x00ff00;
+      }
+    }
+
+    async function loadData() {
+      // IMPORTANT: Replace with your GitHub username and repo
+      const url = 'https://raw.githubusercontent.com/TVK2007-crypto/jointguard-sim/main/data.json';
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to load data.json');
+        dataset = await res.json();
+        if (!dataset || dataset.length === 0) throw new Error('Empty dataset');
+        updateScene(dataset[0]);
+        infoEl.textContent = `JointGuard 3D Simulation – Time: ${dataset[0].timestamp}`;
+        timeDisplay.textContent = `Time: ${dataset[0].timestamp}`;
+      } catch (err) {
+        infoEl.textContent = 'Error loading dataset. Check console for details.';
+        console.error(err);
+      }
+    }
+
+    function updateJointTable(jointsData) {
+      jointTableBody.innerHTML = '';
+      jointsData.forEach(j => {
+        const tr = document.createElement('tr');
+
+        const tdId = document.createElement('td');
+        tdId.textContent = j.id;
+        tr.appendChild(tdId);
+
+        const tdHealth = document.createElement('td');
+        tdHealth.textContent = j.health.toFixed(2);
+        tr.appendChild(tdHealth);
+
+        const tdRul = document.createElement('td');
+        tdRul.textContent = j.rul_days.toFixed(1);
+        tr.appendChild(tdRul);
+
+        const tdRisk = document.createElement('td');
+        tdRisk.textContent = j.risk;
+        if (j.risk === 'Low') tdRisk.style.background = '#00ff00';
+        else if (j.risk === 'Medium') tdRisk.style.background = '#ffff00';
+        else if (j.risk === 'High') tdRisk.style.background = '#ffa500';
+        else if (j.risk === 'Critical') tdRisk.style.background = '#ff0000';
+        tr.appendChild(tdRisk);
+
+        jointTableBody.appendChild(tr);
+      });
+    }
+
+    function updateScene(row) {
+      const jointsData = row.joints;
+
+      jointsData.forEach((j, idx) => {
+        if (idx >= jointMeshes.length) return;
+        const mesh = jointMeshes[idx];
+        mesh.material.color.setHex(riskToColor(j.risk));
+        jointDataMap.set(j.id, j);
+      });
+
+      infoEl.innerHTML = `
+        JointGuard 3D Simulation – Time: ${row.timestamp}<br/>
+        Showing joint risk levels (color-coded).
+      `;
+      timeDisplay.textContent = `Time: ${row.timestamp}`;
+      updateJointTable(jointsData);
+    }
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+
+      if (isPlaying && dataset.length > 0) {
+        frameCounter++;
+        framesPerStep = 11 - speedFactor; // higher speed → fewer frames per step
+        if (frameCounter >= framesPerStep) {
+          frameCounter = 0;
+          const row = dataset[currentTimeIndex];
+          updateScene(row);
+          currentTimeIndex = (currentTimeIndex + 1) % dataset.length;
+        }
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    // Controls
+    playPauseBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      playPauseBtn.textContent = isPlaying ? 'Pause' : 'Play';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      speedFactor = parseInt(speedSlider.value, 10);
+    });
+
+    // Init
+    loadData().then(() => {
+      animate();
+    });
+
+    // Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
